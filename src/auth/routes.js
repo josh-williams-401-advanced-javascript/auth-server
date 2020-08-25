@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const auth = require('./middleware'); // look at auth middleware in demo
+const auth = require('./middleware');
 const schema = require('./models/users/users-schema');
 
 router.post('/signup', async (req, res, next) => {
