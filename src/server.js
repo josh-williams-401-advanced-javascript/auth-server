@@ -6,14 +6,12 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-
 const router = require('./auth/routes');
 
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-
 
 app.use(router);
 app.use((err,req,res,next) => {
