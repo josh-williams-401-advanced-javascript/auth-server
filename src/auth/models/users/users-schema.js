@@ -2,6 +2,8 @@
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const users = mongoose.Schema({
   username: {type: String, required: true, unique: true},
@@ -20,21 +22,27 @@ users.pre('save', async function () {
 users.statics.authenticateBasic = function(username, password) {
   let query = { username };
   return this.findOne(query)
-    .then(user => user && user.comparePasswords(password))
+    .then(user => {
+      if (user && user.comparePasswords(password)) {
+        let signed = user.generateToken();
+        return {token: signed, user: user};
+      }
+    })
     .catch(console.error);
 };
 
-// Takes in the plain password from the user request, and compares it to the encrypted password
+users.statics.findAll = async function() {
+  return await this.find({});
+};
+
 users.methods.comparePasswords = async function(plainPassword) {
   return await bcrypt.compare(plainPassword, this.password);
 };
 
-
-users.methods.generateToken = function () {
-
-  // grab token from jwt
+users.methods.generateToken =  function () {
+  const signed = jwt.sign({id: this._id}, process.env.SECRET);
+  return signed;
 };
-
 
 module.exports = mongoose.model('users', users);
 

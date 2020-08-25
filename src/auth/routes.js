@@ -17,19 +17,13 @@ router.post('/signup', async (req, res, next) => {
 });
 
 router.post('/signin', auth, (req, res, next) => {
-  res.status(200).send(req.headers);
+  res.cookie('auth', req.token);
+  res.status(200).json({token: req.token, user: req.user});
 });
 
-//   // send bcak token -- req.token, made somewhere in middleware
-//   res.send();
-//   res.cookie('auth', req.token);
-
-//   /* maybe like this: 
-//   res.send({
-//     token: req.token,
-//     user: req.user,
-//   })
-//   */
-// });
+router.get('/users', async (req,res) => {
+  let users = await schema.findAll();
+  res.status(200).json(users);
+});
 
 module.exports = router;
