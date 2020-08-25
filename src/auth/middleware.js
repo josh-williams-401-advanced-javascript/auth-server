@@ -15,9 +15,9 @@ const auth = async (req, res, next) => {
     .decode(userNameAndPassword)
     .split(':');
   try {
-    let tokenAndUser = await users.authenticateBasic(username, password);
-    req.token = tokenAndUser.token;
-    req.user = tokenAndUser.user;
+    let { token, user } = await users.authenticateBasic(username, password);
+    req.token = token;
+    req.user = user;
     next();
   } catch (e) {
     console.log('Invalid Login');
