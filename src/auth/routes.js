@@ -16,9 +16,9 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-// router.post('/signin', auth, (req, res, next) => {
-
-// });
+router.post('/signin', auth, (req, res, next) => {
+  res.status(200).send(req.headers);
+});
 
 //   // send bcak token -- req.token, made somewhere in middleware
 //   res.send();

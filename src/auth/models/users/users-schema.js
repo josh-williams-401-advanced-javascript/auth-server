@@ -20,14 +20,14 @@ users.pre('save', async function () {
 users.statics.authenticateBasic = function(username, password) {
   let query = { username };
   return this.findOne(query)
-    .then(user => user && user.comparePassword(password))
+    .then(user => user && user.comparePasswords(password))
     .catch(console.error);
 };
 
-
-// users.methods.comparePasswords = function(plainPassword) {
-//   return 
-// }
+// Takes in the plain password from the user request, and compares it to the encrypted password
+users.methods.comparePasswords = async function(plainPassword) {
+  return await bcrypt.compare(plainPassword, this.password);
+};
 
 
 users.methods.generateToken = function () {
