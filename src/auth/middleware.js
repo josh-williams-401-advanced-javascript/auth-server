@@ -5,13 +5,12 @@ const users = require('./models/users/users-schema');
 
 const auth = async (req, res, next) => {
   if (!req.headers.authorization) {
-    console.log('Invalid Login');
-    res.status(500).send('Invalid Login');
+    next('Invalid Login');
   }
-  let userNameAndPassword = req.headers.authorization
+  let userNameAndPassword = await req.headers.authorization
     .split(' ')
     .pop();
-  let [username, password] = base64
+  let [username, password] = await base64
     .decode(userNameAndPassword)
     .split(':');
   try {
@@ -20,8 +19,7 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (e) {
-    console.log('Invalid Login');
-    res.status(500).send('Invalid Login');
+    next('Invalid Login');
   }
 };
 

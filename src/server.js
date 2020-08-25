@@ -16,7 +16,10 @@ app.use(express.urlencoded({extended:true}));
 
 
 app.use(router);
-
+app.use((err,req,res,next) => {
+  res.status(500).send(err);
+  res.end();
+});
 
 module.exports = {
   server: app,
