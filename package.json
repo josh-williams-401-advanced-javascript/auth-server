@@ -4,8 +4,10 @@
   "description": "Week 3",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node app.js",
+    "watch": "nodemon app.js",
+    "test-watch": "jest --watchAll",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -18,6 +20,15 @@
   },
   "homepage": "https://github.com/josh-williams-401-advanced-javascript/auth-server#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "@code-fellows/supergoose": "^1.0.11",
+    "base-64": "^0.1.0",
+    "bcrypt": "^5.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jest": "^26.4.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.10.0",
+    "morgan": "^1.10.0"
   }
 }
