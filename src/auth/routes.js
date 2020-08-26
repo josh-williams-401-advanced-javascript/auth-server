@@ -2,8 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
-const auth = require('./middleware');
+const superagent = require('superagent');
+const auth = require('./middleware/middleware');
+const oauth = require('./middleware/oauth');
 const schema = require('./models/users/users-schema');
+require('ejs');
 
 router.post('/signup', async (req, res, next) => {
   try {
@@ -24,6 +27,10 @@ router.post('/signin', auth, (req, res, next) => {
 router.get('/users', async (req,res) => {
   let users = await schema.findAll();
   res.status(200).json(users);
+});
+
+router.get('/oauth', oauth, async (req, res) => {
+  res.status(200).json({user:req.user, token: req.token});
 });
 
 module.exports = router;

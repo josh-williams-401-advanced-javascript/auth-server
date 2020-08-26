@@ -1,7 +1,7 @@
 'use strict';
 
 require('@code-fellows/supergoose');
-const auth = require('../src/auth/middleware.js');
+const auth = require('../src/auth/middleware/middleware.js');
 const Users = require('../src/auth/models/users/users-schema');
 
 beforeAll(async (done) => {
@@ -11,11 +11,7 @@ beforeAll(async (done) => {
 
 describe('Auth Middleware', () => {
 
-  // let errorObject = {'message': 'Invalid User ID/Password', 'status': 401, 'statusMessage': 'Unauthorized'};
-
   describe('user authentication', () => {
-
-    // let cachedToken; // in case you want to test reuse of token
 
     it('fails a login for a user (admin) with the incorrect basic credentials', async () => {
 
