@@ -3,7 +3,7 @@
 const server = require('./src/server');
 const mongoose = require('mongoose');
 require('dotenv').config();
-require('ejs');
+
 
 const MONGODB_URI = `mongodb://localhost:${process.env.MONGO_PORT}/auth`;
 

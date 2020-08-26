@@ -6,17 +6,22 @@ const users = require('../models/users/users-schema');
 module.exports = async (req, res, next) => {
   try {
     const code = await req.query.code;
-    console.log('code', code);
+
     let token = await getToken(code);
-    console.log('token', token);
+
     let oauthUser = await userResponse(token);
 
     let allUsers = await users.findAll();
 
     // See if the user is already in the database based on username
     let isInDbAlready = allUsers.filter(user => user.username === oauthUser.login);
+    
     if(!isInDbAlready.length) {
-      const newUserObj = {username: oauthUser.login, password: 'password', fullname: oauthUser.name };
+      const newUserObj = {
+        username: oauthUser.login,
+        password: 'password',
+        fullname: oauthUser.name,
+      };
       // Add user to db
       let user = new users(newUserObj);
       let saved = await user.save(user);
