@@ -39,13 +39,13 @@ users.statics.createFromOauth = async function (oauthEmail) {
 
   if(!oauthEmail) { return Promise.reject('Validation Error'); }
   let allUsers = await this.find({});
-  let isInDbAlready = allUsers.filter(user => user.email === oauthEmail);
+  let isInDbAlready = allUsers.filter(user => user.username === oauthEmail);
   let user;
   if (!isInDbAlready.length) {
     const newUserObj = {
       username: oauthEmail,
       password: 'password',
-      email: oauthEmail,
+      // email: oauthEmail,
     };
     user = new this(newUserObj);
     user.save(user);

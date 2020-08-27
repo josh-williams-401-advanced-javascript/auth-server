@@ -11,8 +11,8 @@ module.exports = async (req, res, next) => {
 
     let oauthUser = await userResponse(access_token);
 
-    let user = await users.createFromOauth(oauthUser.email);
-    let signed = user.generateToken();
+    let user = await users.createFromOauth(oauthUser.login);
+    let signed = await user.generateToken();
     req.token = signed;
     req.user = user;
     next();
