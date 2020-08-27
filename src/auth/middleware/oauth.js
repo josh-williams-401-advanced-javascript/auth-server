@@ -7,38 +7,18 @@ module.exports = async (req, res, next) => {
   try {
     const code = await req.query.code;
 
-    let token = await getToken(code);
+    let access_token = await getToken(code);
 
-    let oauthUser = await userResponse(token);
+    let oauthUser = await userResponse(access_token);
 
-    let allUsers = await users.findAll();
+    let user = await users.createFromOauth(oauthUser.email);
+    let signed = user.generateToken();
+    req.token = signed;
+    req.user = user;
+    next();
 
-    // See if the user is already in the database based on username
-    let isInDbAlready = allUsers.filter(user => user.username === oauthUser.login);
-    
-    if(!isInDbAlready.length) {
-      const newUserObj = {
-        username: oauthUser.login,
-        password: 'password',
-        fullname: oauthUser.name,
-      };
-      // Add user to db
-      let user = new users(newUserObj);
-      let saved = await user.save(user);
-      // Make a token
-      let signed = await saved.generateToken();
-      req.token = signed;
-      req.user = user;
-      next();
-    } else {
-      // Make a token for req obj for user already in db
-      let signed = await isInDbAlready[0].generateToken();
-      req.token = signed;
-      req.user = isInDbAlready[0];
-      next();
-    }
   } catch (e) {
-    next('Oauth Failed');
+    next(e);
   }
 };
 
@@ -57,7 +37,7 @@ async function getToken(code) {
 async function userResponse(token) {
   let userRetrieval = await superagent.get('https://api.github.com/user')
     .set('user-agent', 'express-app')
-    .set('Authorization',`token ${token}`);
+    .set('Authorization', `token ${token}`);
   let user = userRetrieval.body;
   return user;
 }

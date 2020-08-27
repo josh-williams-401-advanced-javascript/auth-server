@@ -20,15 +20,39 @@ users.pre('save', async function () {
 });
 
 users.statics.authenticateBasic = async function (username, password) {
-  let query = { username };
-  let user = await this.findOne(query);
-  let compare = await user.comparePasswords(password);
-  if (user && compare) {
-    let signed = await user.generateToken();
-    return { token: signed, user: user };
-  } else {
-    return Promise.reject();
+  try {
+    let user = await this.findOne({ username });
+    // let compare = await user.comparePasswords(password);
+    let compare = await bcrypt.compare(password, user.password);
+    if (user && compare) {
+      let signed = await user.generateToken();
+      return { token: signed, user };
+    } else {
+      return Promise.reject();
+    }
+  } catch (e) {
+    return null;
   }
+};
+
+users.statics.createFromOauth = async function (oauthEmail) {
+
+  if(!oauthEmail) { return Promise.reject('Validation Error'); }
+  let allUsers = await this.find({});
+  let isInDbAlready = allUsers.filter(user => user.email === oauthEmail);
+  let user;
+  if (!isInDbAlready.length) {
+    const newUserObj = {
+      username: oauthEmail,
+      password: 'password',
+      email: oauthEmail,
+    };
+    user = new this(newUserObj);
+    user.save(user);
+  } else {
+    user = isInDbAlready[0];
+  }
+  return user;
 };
 
 users.statics.findAll = async function () {
@@ -37,11 +61,11 @@ users.statics.findAll = async function () {
 
 users.methods.comparePasswords = async function (plainPassword) {
   let isValid = await bcrypt.compare(plainPassword, this.password);
-  return isValid;
+  return isValid ? this : null;
 };
 
-users.methods.generateToken = function () {
-  const signed = jwt.sign({ id: this._id }, process.env.SECRET);
+users.methods.generateToken = async function () {
+  const signed = await jwt.sign({ id: this._id, role: this.role }, process.env.SECRET);
   return signed;
 };
 

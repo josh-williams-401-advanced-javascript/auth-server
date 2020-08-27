@@ -1,52 +1,58 @@
 'use strict';
 
+require('dotenv').config();
 require('@code-fellows/supergoose');
-const auth = require('../src/auth/middleware/middleware.js');
-const Users = require('../src/auth/models/users/users-schema');
+const auth = require('../src/auth/middleware/middleware');
+const User = require('../src/auth/models/users/users-schema');
 
-beforeAll(async (done) => {
-  await new Users({username: 'admin', password: 'password', role: 'admin', email:'admin@admin.com'}).save();
-  done();
+beforeEach(async () => {
+  const adminUserData = { username: 'admin', password: 'password', role: 'admin', email: 'ad@min.com' };
+  await User(adminUserData).save();
 });
 
-describe('Auth Middleware', () => {
+afterEach(async () => {
+  await User.deleteMany({});
+});
 
-  describe('user authentication', () => {
+describe('user authentication', () => {
 
-    it('fails a login for a user (admin) with the incorrect basic credentials', async () => {
+  let errorObject = { 'message': 'Invalid User ID/Password', 'status': 401, 'statusMessage': 'Unauthorized' };
 
-      let req = {
-        headers: {
-          authorization: 'Basic YWRtaW46Zm9v',
-        },
-      };
+  it('fails a login for a user (admin) with the incorrect basic credentials', async () => {
 
-      let res = {};
-      let next = jest.fn();
+    let req = {
+      headers: {
+        authorization: 'Basic YWRtaW46Zm9v',
+      },
+    };
 
-      await auth(req, res, next);
+    let res = {};
 
-      expect(next).toHaveBeenCalledWith('Invalid Login');
+    let next = jest.fn();
 
-    });
+    await auth(req, res, next);
 
-    it('logs in an admin user with the right credentials', async () => {
+    expect(next).toHaveBeenCalledWith(errorObject);
 
-      let req = {
-        headers: {
-          authorization: 'Basic YWRtaW46cGFzc3dvcmQ=',
-        },
-      };
-      let res = {};
-      let next = jest.fn();
+  });
 
-      await auth(req,res,next);
+  it('logs in an admin user with the right credentials', async () => {
 
-      // cachedToken = req.token;
+    // admin:password: YWRtaW46cGFzc3dvcmQ=
 
-      expect(next).toHaveBeenCalledWith();
+    let req = {
+      headers: {
+        authorization: 'Basic YWRtaW46cGFzc3dvcmQ=',
+      },
+    };
 
-    });
+    let res = {};
+
+    let next = jest.fn();
+
+    await auth(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
 
   });
 
