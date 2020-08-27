@@ -19,7 +19,7 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (e) {
-    next('Invalid Login');
+    next({ 'message': 'Invalid User ID/Password', 'status': 401, 'statusMessage': 'Unauthorized' });
   }
 };
 

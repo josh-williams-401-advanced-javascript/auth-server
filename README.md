@@ -1,5 +1,8 @@
 # auth-server
 Week 3
+### 8/25/2020
+Now the Oauth assigns new users based on email, so it will make unique users, and it is passing all tests.
+
 ### 8/24/2020
 Test the Oauth by going to localhost:3000 and clicking login. Signing into github will add you to the database.  
 

@@ -18,12 +18,8 @@ router.get('/', (req, res) => {
   let encoded;
   for (let key in options) {
     encoded = encodeURIComponent(options[key]);
-    console.log(encoded);
     URL += `${key}=${encoded}&`;
   }
-  // URL.split('').pop().join();
-  console.log(URL);
-
   res.send(`<a href=${URL}>Login</a>`);
 });
 
@@ -31,8 +27,9 @@ router.post('/signup', async (req, res, next) => {
   try {
     let user = new schema(req.body);
     let saved = await user.save(user);
-    console.log(saved);
-    res.status(201).send(`Created user ${saved.username}`);
+    let token = await saved.generateToken();
+    res.body = {user, token};
+    res.status(201).json({user, token});
   } catch (e) {
     res.status(403).send('Error creating user');
   }
