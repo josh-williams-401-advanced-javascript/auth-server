@@ -1,5 +1,14 @@
 # auth-server
 Week 3
+
+### 8/26/2020
+```
+http post :3000/secret “Authorization:Bearer TOKENSTRING”
+```
+Bearer Auth is working now. For best results with testing use: https://javascript-401.netlify.app/bearer-auth
+
+Error handlers are updated. All tests are passing.
+
 ### 8/25/2020
 Now the Oauth assigns new users based on email, so it will make unique users, and it is passing all tests.
 
@@ -18,7 +27,7 @@ GITHUB_CLIENT_SECRET=
 ### 8/23/2020
 Post a sign up by typing this in the terminal:
 ```
-echo '{"username":"josh","password":"pass"}' | http post :3000/signup
+echo '{"username":"dan","password":"wilson"}' | http post :3000/signup
 ```
 Post a sign in by typing this in the terminal:
 ```
