@@ -5,6 +5,9 @@ Week 3
 ```
 http post :3000/secret “Authorization:Bearer TOKENSTRING”
 ```
+Bearer Auth is working now. For best results with testing use: https://javascript-401.netlify.app/bearer-auth
+
+Error handlers are updated. All tests are passing.
 
 ### 8/25/2020
 Now the Oauth assigns new users based on email, so it will make unique users, and it is passing all tests.

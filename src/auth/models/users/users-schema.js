@@ -34,17 +34,16 @@ users.statics.authenticateBasic = async function (username, password) {
   }
 };
 
-users.statics.createFromOauth = async function (oauthEmail) {
+users.statics.createFromOauth = async function (oauthUsername) {
 
-  if (!oauthEmail) { return Promise.reject('Validation Error'); }
+  if (!oauthUsername) { return Promise.reject('Validation Error'); }
   let allUsers = await this.find({});
-  let isInDbAlready = allUsers.filter(user => user.username === oauthEmail);
+  let isInDbAlready = allUsers.filter(user => user.username === oauthUsername);
   let user;
   if (!isInDbAlready.length) {
     const newUserObj = {
-      username: oauthEmail,
+      username: oauthUsername,
       password: 'password',
-      // email: oauthEmail,
     };
     user = new this(newUserObj);
     user.save(user);
@@ -62,7 +61,7 @@ users.statics.authenticateToken = async function (token) {
 
     let inDb = await this.findById(userToken.id);
 
-    return inDb ? Promise.resolve(userToken) : Promise.reject();
+    return inDb ? Promise.resolve(inDb) : Promise.reject();
 
   } catch (e) {
     return Promise.reject();
