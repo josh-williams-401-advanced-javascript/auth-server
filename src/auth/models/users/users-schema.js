@@ -22,7 +22,6 @@ users.pre('save', async function () {
 users.statics.authenticateBasic = async function (username, password) {
   try {
     let user = await this.findOne({ username });
-    // let compare = await user.comparePasswords(password);
     let compare = await bcrypt.compare(password, user.password);
     if (user && compare) {
       let signed = await user.generateToken();
@@ -37,7 +36,7 @@ users.statics.authenticateBasic = async function (username, password) {
 
 users.statics.createFromOauth = async function (oauthEmail) {
 
-  if(!oauthEmail) { return Promise.reject('Validation Error'); }
+  if (!oauthEmail) { return Promise.reject('Validation Error'); }
   let allUsers = await this.find({});
   let isInDbAlready = allUsers.filter(user => user.username === oauthEmail);
   let user;
@@ -55,6 +54,21 @@ users.statics.createFromOauth = async function (oauthEmail) {
   return user;
 };
 
+users.statics.authenticateToken = async function (token) {
+
+  try {
+
+    let userToken = await jwt.verify(token, process.env.SECRET);
+
+    let inDb = await this.findById(userToken.id);
+
+    return inDb ? Promise.resolve(userToken) : Promise.reject();
+
+  } catch (e) {
+    return Promise.reject();
+  }
+};
+
 users.statics.findAll = async function () {
   return await this.find({});
 };
@@ -68,6 +82,7 @@ users.methods.generateToken = async function () {
   const signed = await jwt.sign({ id: this._id, role: this.role }, process.env.SECRET);
   return signed;
 };
+
 
 module.exports = mongoose.model('users', users);
 
