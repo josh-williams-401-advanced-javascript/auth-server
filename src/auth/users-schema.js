@@ -3,8 +3,13 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const SINGLE_USE_TOKENS = true;
 require('dotenv').config();
+
+const SINGLE_USE_TOKENS = process.env.SINGLE_USE_TOKENS || true;
+const TIMED_TOKENS = process.env.TIMED_TOKENS || true;
+const MINUTES = 15;
+
+const defaultRole = 'user';
 
 const usedTokenSchema = mongoose.Schema({
   token: { type: String, required: true, unique: true },
@@ -71,6 +76,7 @@ users.statics.createFromOauth = async function (oauthUsername) {
     const newUserObj = {
       username: oauthUsername,
       password: 'password',
+      role: defaultRole,
     };
     user = new this(newUserObj);
     user.save(user);
@@ -81,7 +87,7 @@ users.statics.createFromOauth = async function (oauthUsername) {
 };
 
 users.statics.authenticateToken = async function (token) {
-
+  console.log('in auth token');
   if (SINGLE_USE_TOKENS) {
     let found = await usedTokenModel.findOne({ token: token });
     if (found) {
@@ -92,6 +98,11 @@ users.statics.authenticateToken = async function (token) {
     console.log('in try');
     let userToken = await jwt.verify(token, process.env.SECRET);
 
+    if (TIMED_TOKENS) {
+      if (Date.now() / 1000 - userToken.iat > 60 * MINUTES) {
+        return Promise.reject('Token expired');
+      }
+    }
     if (SINGLE_USE_TOKENS) {
       const addedToken = new usedTokenModel({ token: token });
       addedToken.save();

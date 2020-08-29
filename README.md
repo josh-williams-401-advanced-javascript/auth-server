@@ -11,7 +11,15 @@ All routes are now working, and can be tested with different authorizations:
 - `/update` - Need a role of admin or editor
 - `/delete` - Need a role of admin  
 
-The app now will only allow a token to be used one time. If you want to change that for testing, in `src/auth/users-schema.js` set `SINGLE_USE_TOKENS` to `false`   
+The app now will only allow a token to be used one time. Whe you first get a token, it will expire after 15 minutes.
+If you want to change that for testing, change these settings in `src/auth/users-schema.js`:
+```js
+const SINGLE_USE_TOKENS = process.env.SINGLE_USE_TOKENS || true;
+
+const TIMED_TOKENS = process.env.TIMED_TOKENS || true;
+
+const MINUTES = 15;
+```
 
 ### 8/26/2020
 ```
