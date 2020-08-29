@@ -3,7 +3,7 @@
 require('dotenv').config();
 require('@code-fellows/supergoose');
 const auth = require('../src/auth/middleware/middleware');
-const User = require('../src/auth/models/users/users-schema');
+const User = require('../src/auth/users-schema');
 
 beforeEach(async () => {
   const adminUserData = { username: 'admin', password: 'password', role: 'admin', email: 'ad@min.com' };

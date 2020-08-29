@@ -20,7 +20,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(router);
 app.use(extraRoutes);
 
-app.use('*',routeError);
+app.use('*', routeError);
 app.use(errorHandler);
 
 module.exports = {
