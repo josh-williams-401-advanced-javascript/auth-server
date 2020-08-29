@@ -5,17 +5,49 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+const SINGLE_USE_TOKENS = process.env.SINGLE_USE_TOKENS || true;
+const TIMED_TOKENS = process.env.TIMED_TOKENS || true;
+const MINUTES = 15;
+
+const defaultRole = 'user';
+
+const usedTokenSchema = mongoose.Schema({
+  token: { type: String, required: true, unique: true },
+});
+const usedTokenModel = mongoose.model('used tokens', usedTokenSchema);
+
 const users = mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   email: { type: String },
   fullname: { type: String },
-  role: { type: String, default: 'user', enum: ['admin', 'editor', 'user'] },
+  role: { type: String, default: 'user', enum: ['admin', 'editor', 'user', 'writer'] },
+  capabilities: { type: Array, default: [], required: true },
 });
 
 users.pre('save', async function () {
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
+  }
+
+  if (this.isModified('role')) {
+    switch (this.role) {
+    case 'user':
+      this.capabilities = ['read'];
+      break;
+    case 'writer':
+      this.capabilities = ['create', 'read'];
+      console.log('writer works');
+      break;
+    case 'editor':
+      this.capabilities = ['create', 'read', 'update'];
+      break;
+    case 'admin':
+      this.capabilities = ['create', 'read', 'update', 'delete'];
+      break;
+    default:
+      break;
+    }
   }
 });
 
@@ -44,6 +76,7 @@ users.statics.createFromOauth = async function (oauthUsername) {
     const newUserObj = {
       username: oauthUsername,
       password: 'password',
+      role: defaultRole,
     };
     user = new this(newUserObj);
     user.save(user);
@@ -54,17 +87,32 @@ users.statics.createFromOauth = async function (oauthUsername) {
 };
 
 users.statics.authenticateToken = async function (token) {
-
+  console.log('in auth token');
+  if (SINGLE_USE_TOKENS) {
+    let found = await usedTokenModel.findOne({ token: token });
+    if (found) {
+      return Promise.reject('Token cannot be used twice');
+    }
+  }
   try {
-
+    console.log('in try');
     let userToken = await jwt.verify(token, process.env.SECRET);
 
-    let inDb = await this.findById(userToken.id);
+    if (TIMED_TOKENS) {
+      if (Date.now() / 1000 - userToken.iat > 60 * MINUTES) {
+        return Promise.reject('Token expired');
+      }
+    }
+    if (SINGLE_USE_TOKENS) {
+      const addedToken = new usedTokenModel({ token: token });
+      addedToken.save();
+    }
 
+    let inDb = await this.findById(userToken.id);
     return inDb ? Promise.resolve(inDb) : Promise.reject();
 
   } catch (e) {
-    return Promise.reject();
+    return Promise.reject('Inavalid Login');
   }
 };
 
@@ -78,7 +126,11 @@ users.methods.comparePasswords = async function (plainPassword) {
 };
 
 users.methods.generateToken = async function () {
-  const signed = await jwt.sign({ id: this._id, role: this.role }, process.env.SECRET);
+  const signed = await jwt.sign({
+    id: this._id,
+    role: this.role,
+    capabilities: this.capabilities,
+  }, process.env.SECRET);
   return signed;
 };
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const superagent = require('superagent');
-const users = require('../models/users/users-schema');
+const users = require('../users-schema');
 
 module.exports = async (req, res, next) => {
   try {
@@ -12,13 +12,15 @@ module.exports = async (req, res, next) => {
     let oauthUser = await userResponse(access_token);
 
     let user = await users.createFromOauth(oauthUser.login);
+
     let signed = await user.generateToken();
+
     req.token = signed;
     req.user = user;
     next();
 
   } catch (e) {
-    next(e);
+    next('Invalid Login');
   }
 };
 

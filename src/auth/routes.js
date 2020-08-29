@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('./middleware/middleware');
 const oauth = require('./middleware/oauth');
-const schema = require('./models/users/users-schema');
+const schema = require('./users-schema');
 
 router.get('/', (req, res) => {
   let URL = 'https://github.com/login/oauth/authorize?';

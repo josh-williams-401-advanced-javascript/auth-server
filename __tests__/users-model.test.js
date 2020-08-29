@@ -3,7 +3,7 @@
 require('dotenv').config();
 require('@code-fellows/supergoose');
 const jwt = require('jsonwebtoken');
-const User = require('../src/auth/models/users/users-schema');
+const User = require('../src/auth/users-schema');
 
 afterEach(async () => {
   await User.deleteMany({});
