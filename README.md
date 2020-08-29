@@ -1,6 +1,18 @@
 # auth-server
 Week 3
 
+### 8/27/2020
+All routes are now working, and can be tested with different authorizations:  
+
+- `/public` - All can access
+- `/private` - Need a valid token to access
+- `/readonly` - Need a role of admin, editor, user, or writer
+- `/create` - Need a role of admin, editor, or writer
+- `/update` - Need a role of admin or editor
+- `/delete` - Need a role of admin  
+
+The app now will only allow a token to be used one time. If you want to change that for testing, in `src/auth/users-schema.js` set `SINGLE_USE_TOKENS` to `false`   
+
 ### 8/26/2020
 ```
 http post :3000/secret “Authorization:Bearer TOKENSTRING”

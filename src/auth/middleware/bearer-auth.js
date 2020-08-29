@@ -16,7 +16,7 @@ module.exports = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    next('Invalid Login');
+    next(e);
   }
 };
 
