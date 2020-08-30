@@ -11,7 +11,7 @@ module.exports = (capability) => {
         next('Access denied');
       }
     } catch (e) {
-      next('Something went wrong');
+      next('Capabilities undetermined, authorization failed');
     }
   };
 };
