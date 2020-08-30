@@ -19,6 +19,8 @@ const SINGLE_USE_TOKENS = process.env.SINGLE_USE_TOKENS || true;
 const TIMED_TOKENS = process.env.TIMED_TOKENS || true;
 
 const MINUTES = 15;
+
+const defaultRole = 'user'; // Change this to test different users
 ```
 
 ### 8/26/2020

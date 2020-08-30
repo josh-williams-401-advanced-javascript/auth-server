@@ -5,8 +5,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const SINGLE_USE_TOKENS = process.env.SINGLE_USE_TOKENS || true;
-const TIMED_TOKENS = process.env.TIMED_TOKENS || true;
+const SINGLE_USE_TOKENS = process.env.SINGLE_USE_TOKENS || false;
+const TIMED_TOKENS = process.env.TIMED_TOKENS || false;
 const MINUTES = 15;
 
 const defaultRole = 'user';
@@ -31,23 +31,13 @@ users.pre('save', async function () {
   }
 
   if (this.isModified('role')) {
-    switch (this.role) {
-    case 'user':
-      this.capabilities = ['read'];
-      break;
-    case 'writer':
-      this.capabilities = ['create', 'read'];
-      console.log('writer works');
-      break;
-    case 'editor':
-      this.capabilities = ['create', 'read', 'update'];
-      break;
-    case 'admin':
-      this.capabilities = ['create', 'read', 'update', 'delete'];
-      break;
-    default:
-      break;
+    const roleMap = { user: 1, writer: 2, editor: 3, admin: 4 };
+    const capabilities = ['read', 'create', 'update', 'delete'];
+    const allowedForThisUser = [];
+    for (let i = 0; i < roleMap[this.role]; i++) {
+      allowedForThisUser.push(capabilities[i]);
     }
+    this.capabilities = allowedForThisUser;
   }
 });
 
@@ -87,7 +77,6 @@ users.statics.createFromOauth = async function (oauthUsername) {
 };
 
 users.statics.authenticateToken = async function (token) {
-  console.log('in auth token');
   if (SINGLE_USE_TOKENS) {
     let found = await usedTokenModel.findOne({ token: token });
     if (found) {
@@ -95,7 +84,6 @@ users.statics.authenticateToken = async function (token) {
     }
   }
   try {
-    console.log('in try');
     let userToken = await jwt.verify(token, process.env.SECRET);
 
     if (TIMED_TOKENS) {
