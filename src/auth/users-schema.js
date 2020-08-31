@@ -100,7 +100,7 @@ users.statics.authenticateToken = async function (token) {
     return inDb ? Promise.resolve(inDb) : Promise.reject();
 
   } catch (e) {
-    return Promise.reject('Inavalid Login');
+    return Promise.reject('Invalid Login');
   }
 };
 
