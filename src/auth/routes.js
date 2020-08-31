@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('./middleware/middleware');
 const oauth = require('./middleware/oauth');
-const schema = require('./users-schema');
+const UserModel = require('./users-schema');
 
 router.get('/', (req, res) => {
   let URL = 'https://github.com/login/oauth/authorize?';
@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
 
 router.post('/signup', async (req, res, next) => {
   try {
-    let user = new schema(req.body);
+    let user = new UserModel(req.body);
     let saved = await user.save(user);
     let token = await saved.generateToken();
     res.body = { user, token };
@@ -40,7 +40,7 @@ router.post('/signin', auth, (req, res, next) => {
 });
 
 router.get('/users', async (req, res) => {
-  let users = await schema.findAll();
+  let users = await UserModel.findAll();
   res.status(200).json(users);
 });
 
